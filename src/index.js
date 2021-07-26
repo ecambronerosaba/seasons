@@ -1,17 +1,44 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ReactDOM from 'react-dom'
+
+class App extends React.Component {
+    // Not required by React
+    constructor(props) {
+        // Required to call setup React.Component
+        // Subclassing it!
+        super(props);
+
+        // ONLY EXCEPTION TO THE RULE 
+        // Can only do direct assignment for this
+        this.state = { lat: null, errorMessage: '' };
+
+        // Don't want to call in render to refetch
+        window.navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // We called setState
+                this.setState({ lat: position.coords.latitude });
+                // CANNOT DO this.state.lat = position.coords.latitude
+            },
+            (err) => {
+                this.setState({ errorMessage: err.message });
+            }
+        );
+    }
+
+    // React says we have to define render!!
+    render() {
+        if (this.state.errorMessage && !this.state.lat) {
+            return <div>Error: {this.state.errorMessage} </div>;
+        }
+
+        if (!this.state.errorMessage && this.state.lat) {
+            return <div>Latitude: {this.state.lat}</div>;
+        }
+        return <div>Loading . . .</div>;
+    }
+}
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <App />,
+    document.querySelector('#root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
